@@ -26,12 +26,9 @@ window.addEventListener('DOMContentLoaded', async function(event) {
 
     let db = firebase.firestore()
 
-
     // console.log(json)
 
       
-
-
     // ⬆️ ⬆️ ⬆️ 
     // End Step 1
     
@@ -45,15 +42,33 @@ window.addEventListener('DOMContentLoaded', async function(event) {
     
     // ⬇️ ⬇️ ⬇️
 
-
    
     let moviesArray = json.results
+
     for (let i = 0; i<moviesArray.length; i++){
         let movies = moviesArray[i]
         // let html = moviesHTML(movies)
         let poster = movies.poster_path
         let posterUrl = `https://image.tmdb.org/t/p/w500${poster}`
         let movieDiv = document.querySelector('.movies')
+
+        let docRef = await db.collection('watched').doc(`${movies.id}`).get()
+
+        let watched = docRef.data()
+
+        console.log(watched)
+
+        if (watched){
+        movieDiv.insertAdjacentHTML('beforeend', `
+        <div class="movie-${movies.id} w-1/5 p-4 opacity-20">
+        <img src="${posterUrl}" class="w-full">
+        <a href="#" class="watched-button block text-center text-white bg-green-500 mt-4 px-4 py-2 rounded">I've watched this!</a>
+        </div>
+        `)
+        }
+
+        else {
+
         movieDiv.insertAdjacentHTML('beforeend', `
         <div class="movie-${movies.id} w-1/5 p-4">
         <img src="${posterUrl}" class="w-full">
@@ -61,8 +76,8 @@ window.addEventListener('DOMContentLoaded', async function(event) {
         </div>
         `)
 
+
         // console.log(movies.id)
-    
     
   
     // ⬆️ ⬆️ ⬆️ 
@@ -80,14 +95,17 @@ window.addEventListener('DOMContentLoaded', async function(event) {
     //   to remove the class if the element already contains it.
     // ⬇️ ⬇️ ⬇️
   
+   
     let watchedButton = document.querySelector(`.movie-${movies.id} .watched-button`) 
     watchedButton.addEventListener('click', async function(event) {
     event.preventDefault()
     document.querySelector(`.movie-${movies.id}`).classList.add('opacity-20')
-    // console.log(`i've watched ${movies.id}`)
-
+    console.log(`i've watched ${movies.id}`)
+    
+    await db.collection('watched').doc(`${movies.id}`).set({})
        
     })
+    }
 
     }
 
